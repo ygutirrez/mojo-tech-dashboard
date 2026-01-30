@@ -47,7 +47,7 @@ fi
 
 # Rsync workspace to NAS (excluding large/temp files)
 log "Syncing workspace to NAS..."
-rsync -av --delete \
+rsync -av --delete --modify-window=1 \
     --exclude='node_modules' \
     --exclude='venv' \
     --exclude='.next' \
@@ -56,6 +56,8 @@ rsync -av --delete \
     --exclude='.env' \
     --exclude='*.log' \
     --exclude='.DS_Store' \
+    --exclude='.git' \
+    --exclude='.clawdhub' \
     "$WORKSPACE/" "$BACKUP_DIR/clawd/"
 
 # Backup clawdbot config (excluding media to save space)
