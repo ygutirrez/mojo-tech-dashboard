@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+
+# Environment & secrets
+.env
+.env.*
+*.key
+**/token.json
+**/credentials.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Large/temp files
+*.xlsx
+*.pdf
+*.zip
+*.tar.gz
+
+# Clawdhub cache
+.clawdhub/

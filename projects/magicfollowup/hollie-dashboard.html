@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoJo Northwest DFW - Lead Performance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 25px 30px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .header h1 { 
+            font-size: 26px; 
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header .subtitle { 
+            font-size: 14px; 
+            color: #666;
+            margin-top: 4px;
+        }
+        .header .period { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .metric-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+        }
+        .metric-card:hover { transform: translateY(-5px); }
+        .metric-card .icon { font-size: 32px; margin-bottom: 10px; }
+        .metric-card .label { 
+            font-size: 12px; 
+            color: #666; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .metric-card .value { 
+            font-size: 42px; 
+            font-weight: 800; 
+            margin: 8px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .metric-card .subtext {
+            font-size: 13px;
+            color: #888;
+        }
+        .metric-card.success .value { 
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            -webkit-background-clip: text;
+        }
+        .metric-card.warning .value { 
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+        }
+        
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .chart-card h3 { 
+            font-size: 18px; 
+            margin-bottom: 20px; 
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .leaderboard {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+        }
+        .leaderboard h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .leader-row {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .leader-row .rank {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+        .leader-row .rank.gold { background: linear-gradient(135deg, #f5af19 0%, #f12711 100%); color: white; }
+        .leader-row .rank.silver { background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%); color: white; }
+        .leader-row .rank.bronze { background: linear-gradient(135deg, #c79081 0%, #dfa579 100%); color: white; }
+        .leader-row .info { flex: 1; }
+        .leader-row .info .name { font-weight: 700; font-size: 16px; color: #333; }
+        .leader-row .info .stats { font-size: 13px; color: #666; margin-top: 2px; }
+        .leader-row .metrics {
+            display: flex;
+            gap: 20px;
+            text-align: center;
+        }
+        .leader-row .metrics .metric {
+            min-width: 60px;
+        }
+        .leader-row .metrics .metric .num { font-size: 22px; font-weight: 700; color: #667eea; }
+        .leader-row .metrics .metric .lbl { font-size: 11px; color: #888; text-transform: uppercase; }
+        
+        .insight-box {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border-radius: 16px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .insight-box h4 { font-size: 16px; margin-bottom: 10px; opacity: 0.9; }
+        .insight-box p { font-size: 15px; line-height: 1.6; }
+        .insight-box strong { font-weight: 700; }
+        
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            padding: 20px;
+        }
+        .footer strong { color: white; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <div>
+                <h1>🦟 MoJo Northwest DFW</h1>
+                <div class="subtitle">Lead Performance Dashboard | Powered by MagicFollowUp</div>
+            </div>
+            <div class="period">📅 Oct 2025 - Jan 2026</div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="icon">📊</div>
+                <div class="label">Total Leads</div>
+                <div class="value">197</div>
+                <div class="subtext">All lead sources</div>
+            </div>
+            <div class="metric-card success">
+                <div class="icon">✅</div>
+                <div class="label">Closed Won</div>
+                <div class="value">120</div>
+                <div class="subtext">61% close rate</div>
+            </div>
+            <div class="metric-card">
+                <div class="icon">⏳</div>
+                <div class="label">Open Leads</div>
+                <div class="value">61</div>
+                <div class="subtext">31% in pipeline</div>
+            </div>
+            <div class="metric-card warning">
+                <div class="icon">💰</div>
+                <div class="label">Avg Quote</div>
+                <div class="value">$79</div>
+                <div class="subtext">Barrier service</div>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <h4>💡 Key Insights</h4>
+            <p><strong>Google is your #1 lead source</strong> (76 leads, 39% of total). Barrier spray is the top service requested (122 leads). You have <strong>61 open leads worth following up on</strong>. With automated sequences in MagicFollowUp, you could recover 15-20% of these stale leads.</p>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-card">
+                <h3>📈 Lead Sources</h3>
+                <canvas id="sourceChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>🎯 Lead Status</h3>
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <div class="leaderboard">
+            <h3>🏆 Team Leaderboard</h3>
+            <div class="leader-row">
+                <div class="rank gold">1</div>
+                <div class="info">
+                    <div class="name">Kailee Waggoner 🔥</div>
+                    <div class="stats">Top performer by volume</div>
+                </div>
+                <div class="metrics">
+                    <div class="metric">
+                        <div class="num">89</div>
+                        <div class="lbl">Leads</div>
+                    </div>
+                    <div class="metric">
+                        <div class="num">45%</div>
+                        <div class="lbl">Share</div>
+                    </div>
+                </div>
+            </div>
+            <div class="leader-row">
+                <div class="rank silver">2</div>
+                <div class="info">
+                    <div class="name">Skyler Palmer ⭐</div>
+                    <div class="stats">Strong closer</div>
+                </div>
+                <div class="metrics">
+                    <div class="metric">
+                        <div class="num">76</div>
+                        <div class="lbl">Leads</div>
+                    </div>
+                    <div class="metric">
+                        <div class="num">39%</div>
+                        <div class="lbl">Share</div>
+                    </div>
+                </div>
+            </div>
+            <div class="leader-row">
+                <div class="rank bronze">3</div>
+                <div class="info">
+                    <div class="name">Tami Muncy</div>
+                    <div class="stats">Solid contributor</div>
+                </div>
+                <div class="metrics">
+                    <div class="metric">
+                        <div class="num">17</div>
+                        <div class="lbl">Leads</div>
+                    </div>
+                    <div class="metric">
+                        <div class="num">9%</div>
+                        <div class="lbl">Share</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-card">
+                <h3>🛠️ Services Requested</h3>
+                <canvas id="serviceChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>📞 Lead Type</h3>
+                <canvas id="typeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="footer">
+            Dashboard by <strong>MagicFollowUp</strong> | Data from MoJo Northwest DFW Lead Tracking
+        </div>
+    </div>
+
+    <script>
+        // Lead Sources Chart
+        new Chart(document.getElementById('sourceChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Google', 'Existing Customer', 'Referral', 'Van', 'MoJo Website', 'Yard Sign', 'PPC', 'Social', 'Other'],
+                datasets: [{
+                    data: [76, 35, 31, 10, 9, 8, 5, 5, 18],
+                    backgroundColor: [
+                        '#667eea', '#764ba2', '#f093fb', '#f5576c', 
+                        '#11998e', '#38ef7d', '#ffecd2', '#fcb69f', '#a8edea'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+
+        // Status Chart
+        new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Closed Won', 'Open', 'Not Interested', 'Not Viable'],
+                datasets: [{
+                    data: [120, 61, 9, 6],
+                    backgroundColor: ['#38ef7d', '#667eea', '#f5576c', '#bdc3c7']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+
+        // Services Chart
+        new Chart(document.getElementById('serviceChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Barrier', 'Barrier/HPD', 'HPD', 'Special Event', 'Misting Install', 'Misting Service'],
+                datasets: [{
+                    label: 'Requests',
+                    data: [122, 18, 18, 14, 7, 3],
+                    backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Lead Type Chart
+        new Chart(document.getElementById('typeChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Phone Call', 'Website', 'Call Center', 'Web Chat', 'Email', 'Field'],
+                datasets: [{
+                    label: 'Leads',
+                    data: [93, 78, 10, 6, 6, 3],
+                    backgroundColor: 'rgba(118, 75, 162, 0.8)',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

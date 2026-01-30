@@ -1,0 +1,266 @@
+#!/usr/bin/env bash
+# Motion CLI wrapper
+# Usage: motion <command> [options]
+
+set -e
+
+API_KEY="${MOTION_API_KEY:-}"
+BASE_URL="https://api.usemotion.com/v1"
+
+# Parse global flags
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --api-key) API_KEY="$2"; shift 2 ;;
+    --json) JSON_OUT=1; shift ;;
+    *) break ;;
+  esac
+done
+
+if [[ -z "$API_KEY" ]]; then
+  echo "Error: MOTION_API_KEY not set. Export it or use --api-key" >&2
+  exit 1
+fi
+
+cmd="${1:-help}"
+shift || true
+
+api() {
+  local method="$1" endpoint="$2" data="$3"
+  local args=(-s -H "X-API-Key: $API_KEY" -H "Content-Type: application/json")
+  [[ "$method" != "GET" ]] && args+=(-X "$method")
+  [[ -n "$data" ]] && args+=(-d "$data")
+  curl "${args[@]}" "${BASE_URL}${endpoint}"
+}
+
+format() {
+  if [[ -n "$JSON_OUT" ]]; then
+    cat
+  else
+    jq -r "$@" 2>/dev/null || cat
+  fi
+}
+
+case "$cmd" in
+  me)
+    api GET "/users/me" | format '.name + " <" + .email + ">"'
+    ;;
+
+  tasks)
+    # Parse filters
+    query=""
+    while [[ $# -gt 0 ]]; do
+      case $1 in
+        --status) query+="&status=$2"; shift 2 ;;
+        --project) query+="&projectId=$2"; shift 2 ;;
+        --workspace) query+="&workspaceId=$2"; shift 2 ;;
+        --assignee) query+="&assigneeId=$2"; shift 2 ;;
+        *) shift ;;
+      esac
+    done
+    api GET "/tasks?${query#&}" | format '.tasks[] | "\(.id)\t\(.status // "—")\t\(.name)"'
+    ;;
+
+  task)
+    subcmd="${1:-}"
+    shift || true
+    case "$subcmd" in
+      create)
+        name="$1"; shift
+        data="{\"name\":\"$name\""
+        while [[ $# -gt 0 ]]; do
+          case $1 in
+            --workspace) data+=",\"workspaceId\":\"$2\""; shift 2 ;;
+            --project) data+=",\"projectId\":\"$2\""; shift 2 ;;
+            --deadline) data+=",\"deadline\":\"$2\""; shift 2 ;;
+            --priority) data+=",\"priority\":\"$2\""; shift 2 ;;
+            --duration) data+=",\"duration\":$2"; shift 2 ;;
+            --description) data+=",\"description\":\"$2\""; shift 2 ;;
+            --assignee) data+=",\"assigneeId\":\"$2\""; shift 2 ;;
+            *) shift ;;
+          esac
+        done
+        data+="}"
+        api POST "/tasks" "$data" | format '.'
+        ;;
+      update)
+        id="$1"; shift
+        data="{"
+        first=1
+        while [[ $# -gt 0 ]]; do
+          [[ $first -eq 0 ]] && data+=","
+          first=0
+          case $1 in
+            --name) data+="\"name\":\"$2\""; shift 2 ;;
+            --status) data+="\"status\":\"$2\""; shift 2 ;;
+            --deadline) data+="\"deadline\":\"$2\""; shift 2 ;;
+            --priority) data+="\"priority\":\"$2\""; shift 2 ;;
+            --duration) data+="\"duration\":$2"; shift 2 ;;
+            --description) data+="\"description\":\"$2\""; shift 2 ;;
+            *) shift ;;
+          esac
+        done
+        data+="}"
+        api PATCH "/tasks/$id" "$data" | format '.'
+        ;;
+      delete)
+        api DELETE "/tasks/$1" && echo "Deleted task $1"
+        ;;
+      move)
+        id="$1"; shift
+        workspace=""
+        while [[ $# -gt 0 ]]; do
+          case $1 in
+            --workspace) workspace="$2"; shift 2 ;;
+            *) shift ;;
+          esac
+        done
+        api POST "/tasks/$id/move" "{\"workspaceId\":\"$workspace\"}" | format '.'
+        ;;
+      *)
+        # Get single task by ID
+        api GET "/tasks/$subcmd" | format '.'
+        ;;
+    esac
+    ;;
+
+  projects)
+    workspace=""
+    while [[ $# -gt 0 ]]; do
+      case $1 in
+        --workspace) workspace="$2"; shift 2 ;;
+        *) shift ;;
+      esac
+    done
+    query=""
+    [[ -n "$workspace" ]] && query="?workspaceId=$workspace"
+    api GET "/projects$query" | format '.projects[] | "\(.id)\t\(.name)"'
+    ;;
+
+  project)
+    subcmd="${1:-}"
+    shift || true
+    case "$subcmd" in
+      create)
+        name="$1"; shift
+        data="{\"name\":\"$name\""
+        while [[ $# -gt 0 ]]; do
+          case $1 in
+            --workspace) data+=",\"workspaceId\":\"$2\""; shift 2 ;;
+            *) shift ;;
+          esac
+        done
+        data+="}"
+        api POST "/projects" "$data" | format '.'
+        ;;
+      *)
+        api GET "/projects/$subcmd" | format '.'
+        ;;
+    esac
+    ;;
+
+  recurring)
+    subcmd="${1:-list}"
+    shift || true
+    case "$subcmd" in
+      list)
+        workspace=""
+        while [[ $# -gt 0 ]]; do
+          case $1 in
+            --workspace) workspace="$2"; shift 2 ;;
+            *) shift ;;
+          esac
+        done
+        api GET "/recurring-tasks${workspace:+?workspaceId=$workspace}" | format '.tasks[] | "\(.id)\t\(.frequency)\t\(.name)"'
+        ;;
+      create)
+        name="$1"; shift
+        data="{\"name\":\"$name\""
+        while [[ $# -gt 0 ]]; do
+          case $1 in
+            --workspace) data+=",\"workspaceId\":\"$2\""; shift 2 ;;
+            --frequency) data+=",\"frequency\":\"$2\""; shift 2 ;;
+            --deadline) data+=",\"deadline\":\"$2\""; shift 2 ;;
+            --priority) data+=",\"priority\":\"$2\""; shift 2 ;;
+            --project) data+=",\"projectId\":\"$2\""; shift 2 ;;
+            *) shift ;;
+          esac
+        done
+        data+="}"
+        api POST "/recurring-tasks" "$data" | format '.'
+        ;;
+      delete)
+        api DELETE "/recurring-tasks/$1" && echo "Deleted recurring task $1"
+        ;;
+    esac
+    ;;
+
+  workspaces)
+    api GET "/workspaces" | format '.workspaces[] | "\(.id)\t\(.name)"'
+    ;;
+
+  schedules)
+    api GET "/schedules" | format '.schedules[] | "\(.id)\t\(.name)"'
+    ;;
+
+  statuses)
+    workspace="${1:-}"
+    api GET "/statuses${workspace:+?workspaceId=$workspace}" | format '.statuses[] | "\(.name)"'
+    ;;
+
+  users)
+    workspace="${1:-}"
+    api GET "/users${workspace:+?workspaceId=$workspace}" | format '.users[] | "\(.id)\t\(.name)\t\(.email)"'
+    ;;
+
+  comments)
+    task_id="$1"
+    api GET "/comments?taskId=$task_id" | format '.comments[] | "\(.id)\t\(.content)"'
+    ;;
+
+  comment)
+    subcmd="${1:-}"
+    shift || true
+    case "$subcmd" in
+      create)
+        task_id="$1"; content="$2"
+        api POST "/comments" "{\"taskId\":\"$task_id\",\"content\":\"$content\"}" | format '.'
+        ;;
+    esac
+    ;;
+
+  help|*)
+    cat <<EOF
+Motion CLI
+
+Usage: motion <command> [options]
+
+Commands:
+  me                     Show current user
+  tasks                  List tasks (--status, --project, --workspace)
+  task <id>              Get task details
+  task create <name>     Create task (--workspace, --deadline, --priority, --project)
+  task update <id>       Update task (--name, --status, --deadline, --priority)
+  task delete <id>       Delete task
+  task move <id>         Move task (--workspace)
+  projects               List projects (--workspace)
+  project <id>           Get project details
+  project create <name>  Create project (--workspace)
+  recurring              List recurring tasks (--workspace)
+  recurring create       Create recurring task (--frequency, --workspace)
+  recurring delete <id>  Delete recurring task
+  workspaces             List workspaces
+  schedules              List schedules
+  statuses [workspace]   List available statuses
+  users [workspace]      List users
+  comments <task-id>     List comments on task
+  comment create <task> <content>  Add comment
+
+Global options:
+  --api-key <key>        Override MOTION_API_KEY
+  --json                 Output raw JSON
+
+Priorities: ASAP, HIGH, MEDIUM, LOW
+Frequencies: DAILY, DAILY_WEEKDAYS, WEEKLY, BIWEEKLY, MONTHLY, QUARTERLY, YEARLY
+EOF
+    ;;
+esac

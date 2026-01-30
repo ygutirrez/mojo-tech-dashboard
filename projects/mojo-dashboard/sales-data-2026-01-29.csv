@@ -1,0 +1,47 @@
+Day,Sale/Cancel,Category,Count,CSR,Customer Name
+2026-01-05 00:00:00,Cancel,Paused/WP  ,1,Norma,Natalie Santiano
+2026-01-05 00:00:00,Cancel,Paused/WP  ,1,Lucy,Xavier Viteri
+2026-01-06 00:00:00,Cancel,Moved,1,Norma,Cameron Wilson
+2026-01-06 00:00:00,Cancel,Paused/WP  ,1,Norma,Jose Gurevich
+2026-01-07 00:00:00,Cancel,Financial  ,1,Lucy,Deborah Klem
+2026-01-07 00:00:00,Cancel,Moved,1,Norma,Alexander Rodriguez
+2026-01-08 00:00:00,Cancel,Moved,1,Norma,Stephen Bailey
+2026-01-08 00:00:00,Cancel,Paused/WP  ,1,Norma,Julian Gray
+2026-01-09 00:00:00,Cancel,Paused/WP  ,1,Norma,Mike Acosta
+2026-01-09 00:00:00,Cancel,Moved,1,Lucy,Chandri Navarro
+2026-01-12 00:00:00,Cancel,Not Interested  ,1,Bev,Eric Munoz
+2026-01-12 00:00:00,Sale,Mosquito/PP,1,Lucy,Quentin Lacornerie
+2026-01-12 00:00:00,Sale,HPD  (Indoor),1,Norma,Michael Collazo
+2026-01-12 00:00:00,Cancel,Paused/WP  ,1,Norma,Jose Mujica
+2026-01-12 00:00:00,Cancel,Paused/WP  ,1,Norma,Carlos Sanchez
+2026-01-12 00:00:00,Sale,Restart,1,Lucy,Liana Pearson
+2026-01-13 00:00:00,Sale,Restart,1,Norma,Alejandra Delgado
+2026-01-13 00:00:00,Cancel,Moved,1,Lucy,Aileen Nadal
+2026-01-15 00:00:00,Sale,Perimeter Pest  ,1,Bev,Derek Raines
+2026-01-15 00:00:00,Cancel,Not Interested  ,1,Norma,Amparo Leon
+2026-01-15 00:00:00,Cancel,Paused/WP  ,1,Norma,Juan Lopez
+2026-01-16 00:00:00,Cancel,Not Interested  ,1,Norma,Sarah Eletto
+2026-01-16 00:00:00,Sale,Noseeum  ,1,Lucy,Jose Antonio Puentes Jr.
+2026-01-16 00:00:00,Sale,Barrier Spray,1,Lucy,Albert Llodra
+2026-01-19 00:00:00,Sale,Noseeum  ,1,Bev,Michael Klein
+2026-01-19 00:00:00,Cancel,Financial  ,1,Lucy,Charlotte Estvold
+2026-01-19 00:00:00,Cancel,Not Interested  ,1,Lucy,David Cohen
+2026-01-21 00:00:00,Cancel,Financial  ,1,Lucy,Sayuri Rivera Roca
+2026-01-21 00:00:00,Cancel,Not Interested  ,1,Norma,Idania Salgueiro
+2026-01-21 00:00:00,Cancel,Paused/WP  ,1,Bev,Jennifer Dray
+2026-01-21 00:00:00,Cancel,Paused/WP  ,1,Lucy,Laura Davila
+2026-01-22 00:00:00,Cancel,Moved,1,Norma,Julyett Gullen
+2026-01-22 00:00:00,Cancel,Moved,1,Lucy,Eli Mandler
+2026-01-22 00:00:00,Cancel,Moved,1,Lucy,Andres Valbuena
+2026-01-26 00:00:00,Sale,Fleas/Ticks  ,1,Bev,Theo Stohner
+2026-01-26 00:00:00,Cancel,Paused/WP  ,1,Norma,Steve Estes
+2026-01-26 00:00:00,Cancel,Moved,1,Lucy,Karen Husted
+2026-01-27 00:00:00,Sale,Misting System  ,1,Bev,Eduardo Rodriguez
+2026-01-28 00:00:00,Cancel,Paused/WP  ,1,Norma,Todd Blaylock
+2026-01-28 00:00:00,Sale,Barrier Spray,1,Norma,Paola Vargas
+2026-01-28 00:00:00,Cancel,Paused/WP  ,1,Lucy,Dinorah Baquedano
+2026-01-28 00:00:00,Cancel,Paused/WP  ,1,Norma,Raul Villaverde
+2026-01-28 00:00:00,Sale,Barrier Spray,1,Lucy,Jesse Sanchez
+2026-01-28 00:00:00,Cancel,Paused/WP  ,1,Norma,Patsy Wright
+2026-01-29 00:00:00,Cancel,Paused/WP  ,1,Norma,Ivan Cid
+2026-01-31 00:00:00,Sale,Restart,1,Lucy,test

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoJo Sales & Cancellation KPI Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a5c1a 0%, #2d8f2d 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 24px; }
+        .header .updated { font-size: 12px; opacity: 0.8; }
+        .header .period { 
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .metric-card .label { 
+            font-size: 11px; 
+            color: #666; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .metric-card .value { 
+            font-size: 32px; 
+            font-weight: 700; 
+            margin: 8px 0;
+        }
+        .metric-card .subtext {
+            font-size: 12px;
+            color: #888;
+        }
+        .metric-card.positive .value { color: #166534; }
+        .metric-card.negative .value { color: #dc2626; }
+        .metric-card.warning .value { color: #d97706; }
+        .metric-card.neutral .value { color: #1a1a1a; }
+        .metric-card.highlight { border-left: 4px solid #1a5c1a; }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .chart-card h3 { 
+            font-size: 16px; 
+            margin-bottom: 15px; 
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .table-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .table-section h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+        th { font-size: 11px; text-transform: uppercase; color: #666; font-weight: 600; background: #fafafa; }
+        td { font-size: 13px; }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge.sale { background: #dcfce7; color: #166534; }
+        .badge.cancel { background: #fee2e2; color: #dc2626; }
+        
+        .csr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .csr-card {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .csr-card .name { font-weight: 600; margin-bottom: 10px; }
+        .csr-card .stats { display: flex; justify-content: center; gap: 15px; font-size: 13px; }
+        .csr-card .stats .sales { color: #166534; }
+        .csr-card .stats .cancels { color: #dc2626; }
+        
+        .insight-box {
+            background: #fef3c7;
+            border-left: 4px solid #d97706;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+        }
+        .insight-box h4 { color: #92400e; margin-bottom: 8px; font-size: 14px; }
+        .insight-box p { color: #78350f; font-size: 13px; line-height: 1.5; }
+        
+        /* Leaderboard Styles */
+        .leaderboard {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .leaderboard h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .leaderboard-podium {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .podium-spot {
+            text-align: center;
+            padding: 15px;
+            border-radius: 12px;
+            min-width: 120px;
+        }
+        .podium-spot.first {
+            background: linear-gradient(180deg, #ffd700 0%, #ffb700 100%);
+            color: #1a1a1a;
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+        .podium-spot.second {
+            background: linear-gradient(180deg, #c0c0c0 0%, #a8a8a8 100%);
+            color: #1a1a1a;
+        }
+        .podium-spot.third {
+            background: linear-gradient(180deg, #cd7f32 0%, #b8722c 100%);
+            color: white;
+        }
+        .podium-spot .rank { font-size: 28px; margin-bottom: 5px; }
+        .podium-spot .name { font-weight: 700; font-size: 18px; margin-bottom: 5px; }
+        .podium-spot .sales-count { font-size: 24px; font-weight: 800; }
+        .podium-spot .sales-label { font-size: 11px; opacity: 0.8; text-transform: uppercase; }
+        
+        .leaderboard-details {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .leader-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .leader-row:last-child { border-bottom: none; }
+        .leader-row .position {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+        .leader-row .position.gold { background: #ffd700; color: #1a1a1a; }
+        .leader-row .position.silver { background: #c0c0c0; color: #1a1a1a; }
+        .leader-row .position.bronze { background: #cd7f32; color: white; }
+        .leader-row .info { flex: 1; }
+        .leader-row .info .name { font-weight: 600; font-size: 15px; }
+        .leader-row .info .stats { font-size: 12px; opacity: 0.7; }
+        .leader-row .progress-wrap { flex: 1; margin: 0 20px; }
+        .leader-row .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .leader-row .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .leader-row .progress-fill.gold { background: linear-gradient(90deg, #ffd700, #ffed4a); }
+        .leader-row .progress-fill.silver { background: linear-gradient(90deg, #c0c0c0, #e8e8e8); }
+        .leader-row .progress-fill.bronze { background: linear-gradient(90deg, #cd7f32, #daa06d); }
+        .leader-row .score {
+            font-size: 20px;
+            font-weight: 700;
+            min-width: 60px;
+            text-align: right;
+        }
+        
+        .leaderboard-footer {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>🦟 MoJo Sales & Cancellation Dashboard</h1>
+            <div class="updated">Last updated: January 29, 2026 @ 12:45pm</div>
+        </div>
+        <div class="period">📅 Jan 5 - Jan 29, 2026</div>
+    </div>
+
+    <div class="insight-box">
+        <h4>📊 Key Insight</h4>
+        <p><strong>Adjusted Net: -4</strong> (excluding seasonal pauses). 16 of 33 cancels are "Paused/WP" — winter hibernators who'll likely reactivate in spring. True churn is 17, making the real picture much healthier. Focus save efforts on "Not Interested" (5) and "Moved" (9) where intervention might help.</p>
+    </div>
+
+    <!-- SALES LEADERBOARD -->
+    <div class="leaderboard">
+        <h3>🏆 January Sales Leaderboard</h3>
+        
+        <div class="leaderboard-podium">
+            <div class="podium-spot second">
+                <div class="rank">🥈</div>
+                <div class="name">Bev</div>
+                <div class="sales-count">4</div>
+                <div class="sales-label">Sales</div>
+            </div>
+            <div class="podium-spot first">
+                <div class="rank">🥇</div>
+                <div class="name">Lucy</div>
+                <div class="sales-count">6</div>
+                <div class="sales-label">Sales</div>
+            </div>
+            <div class="podium-spot third">
+                <div class="rank">🥉</div>
+                <div class="name">Norma</div>
+                <div class="sales-count">3</div>
+                <div class="sales-label">Sales</div>
+            </div>
+        </div>
+        
+        <div class="leaderboard-details">
+            <div class="leader-row">
+                <div class="position gold">1</div>
+                <div class="info">
+                    <div class="name">Lucy 🔥</div>
+                    <div class="stats">6 sales • Best month so far!</div>
+                </div>
+                <div class="progress-wrap">
+                    <div class="progress-bar">
+                        <div class="progress-fill gold" style="width: 100%;"></div>
+                    </div>
+                </div>
+                <div class="score">6</div>
+            </div>
+            <div class="leader-row">
+                <div class="position silver">2</div>
+                <div class="info">
+                    <div class="name">Bev ⭐</div>
+                    <div class="stats">4 sales • Best conversion ratio!</div>
+                </div>
+                <div class="progress-wrap">
+                    <div class="progress-bar">
+                        <div class="progress-fill silver" style="width: 67%;"></div>
+                    </div>
+                </div>
+                <div class="score">4</div>
+            </div>
+            <div class="leader-row">
+                <div class="position bronze">3</div>
+                <div class="info">
+                    <div class="name">Norma</div>
+                    <div class="stats">3 sales • Retention specialist</div>
+                </div>
+                <div class="progress-wrap">
+                    <div class="progress-bar">
+                        <div class="progress-fill bronze" style="width: 50%;"></div>
+                    </div>
+                </div>
+                <div class="score">3</div>
+            </div>
+        </div>
+        
+        <div class="leaderboard-footer">
+            🎯 Goal: 20 sales/month • Currently at 13 (65%) • 2 days left!
+        </div>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card positive highlight">
+            <div class="label">Total Sales</div>
+            <div class="value">13</div>
+            <div class="subtext">New/Restart customers</div>
+        </div>
+        <div class="metric-card negative">
+            <div class="label">Total Cancels</div>
+            <div class="value">33</div>
+            <div class="subtext">Lost customers</div>
+        </div>
+        <div class="metric-card negative">
+            <div class="label">Net Change</div>
+            <div class="value">-20</div>
+            <div class="subtext">Customer base shrinking</div>
+        </div>
+        <div class="metric-card warning">
+            <div class="label">Cancel Rate</div>
+            <div class="value">72%</div>
+            <div class="subtext">Cancels ÷ Total Activity</div>
+        </div>
+        <div class="metric-card neutral">
+            <div class="label">Avg/Day</div>
+            <div class="value">1.7</div>
+            <div class="subtext">Activities per day</div>
+        </div>
+        <div class="metric-card neutral">
+            <div class="label">Days Tracked</div>
+            <div class="value">24</div>
+            <div class="subtext">Jan 5 - Jan 28</div>
+        </div>
+    </div>
+
+    <!-- Paused vs True Cancel Breakdown -->
+    <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">
+        <div class="metric-card" style="border-left: 4px solid #94a3b8;">
+            <div class="label">Seasonal Pauses</div>
+            <div class="value" style="color: #64748b;">13</div>
+            <div class="subtext">Paused/WP — likely to return in spring</div>
+        </div>
+        <div class="metric-card" style="border-left: 4px solid #ef4444;">
+            <div class="label">True Cancels</div>
+            <div class="value" style="color: #dc2626;">15</div>
+            <div class="subtext">Moved, Not Interested, Financial, etc.</div>
+        </div>
+        <div class="metric-card" style="border-left: 4px solid #22c55e;">
+            <div class="label">Adjusted Net</div>
+            <div class="value" style="color: #166534;">-3</div>
+            <div class="subtext">Sales minus True Cancels only</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>📊 Cancel Reasons Breakdown</h3>
+            <canvas id="cancelReasonsChart"></canvas>
+            <div style="margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: 8px; font-size: 12px;">
+                <strong>Legend:</strong><br>
+                <span style="color: #94a3b8;">⬤ Seasonal (recoverable)</span> — Paused/WP<br>
+                <span style="color: #fb923c;">⬤ Unavoidable</span> — Moved<br>
+                <span style="color: #f87171;">⬤ Actionable</span> — Not Interested, Financial
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>💰 Sales by Service Type</h3>
+            <canvas id="salesByTypeChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-card" style="margin-bottom: 20px;">
+        <h3>📈 Daily Sales vs Cancels Trend</h3>
+        <canvas id="dailyTrendChart"></canvas>
+    </div>
+
+    <div class="table-section">
+        <h3>👥 Performance by CSR</h3>
+        <div class="csr-grid">
+            <div class="csr-card">
+                <div class="name">Lucy</div>
+                <div class="stats">
+                    <span class="sales">✅ 6 sales</span>
+                    <span class="cancels">❌ 11 cancels</span>
+                </div>
+            </div>
+            <div class="csr-card">
+                <div class="name">Norma</div>
+                <div class="stats">
+                    <span class="sales">✅ 2 sales</span>
+                    <span class="cancels">❌ 15 cancels</span>
+                </div>
+            </div>
+            <div class="csr-card">
+                <div class="name">Bev</div>
+                <div class="stats">
+                    <span class="sales">✅ 4 sales</span>
+                    <span class="cancels">❌ 2 cancels</span>
+                </div>
+            </div>
+        </div>
+        <p style="margin-top: 15px; font-size: 12px; color: #666;">
+            💡 <strong>Note:</strong> Bev has the best sales-to-cancel ratio (4:2). Norma handles most cancels (likely assigned to retention).
+        </p>
+    </div>
+
+    <div class="table-section">
+        <h3>📋 Recent Activity (Last 10)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>CSR</th>
+                    <th>Customer</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1/28/2026</td>
+                    <td><span class="badge sale">Sale</span></td>
+                    <td>Barrier Spray</td>
+                    <td>Norma</td>
+                    <td>Paola Vargas</td>
+                </tr>
+                <tr>
+                    <td>1/28/2026</td>
+                    <td><span class="badge cancel">Cancel</span></td>
+                    <td>Paused/WP</td>
+                    <td>Norma</td>
+                    <td>Todd Blaylock</td>
+                </tr>
+                <tr>
+                    <td>1/27/2026</td>
+                    <td><span class="badge sale">Sale</span></td>
+                    <td>Misting System</td>
+                    <td>Bev</td>
+                    <td>Eduardo Rodriguez</td>
+                </tr>
+                <tr>
+                    <td>1/26/2026</td>
+                    <td><span class="badge cancel">Cancel</span></td>
+                    <td>Moved</td>
+                    <td>Lucy</td>
+                    <td>Karen Husted</td>
+                </tr>
+                <tr>
+                    <td>1/26/2026</td>
+                    <td><span class="badge cancel">Cancel</span></td>
+                    <td>Paused/WP</td>
+                    <td>Norma</td>
+                    <td>Steve Estes</td>
+                </tr>
+                <tr>
+                    <td>1/26/2026</td>
+                    <td><span class="badge sale">Sale</span></td>
+                    <td>Fleas/Ticks</td>
+                    <td>Bev</td>
+                    <td>Theo Stohner</td>
+                </tr>
+                <tr>
+                    <td>1/22/2026</td>
+                    <td><span class="badge cancel">Cancel</span></td>
+                    <td>Moved</td>
+                    <td>Lucy</td>
+                    <td>Andres Valbuena</td>
+                </tr>
+                <tr>
+                    <td>1/22/2026</td>
+                    <td><span class="badge cancel">Cancel</span></td>
+                    <td>Moved</td>
+                    <td>Lucy</td>
+                    <td>Eli Mandler</td>
+                </tr>
+                <tr>
+                    <td>1/22/2026</td>
+                    <td><span class="badge cancel">Cancel</span></td>
+                    <td>Moved</td>
+                    <td>Norma</td>
+                    <td>Julyett Gullen</td>
+                </tr>
+                <tr>
+                    <td>1/21/2026</td>
+                    <td><span class="badge cancel">Cancel</span></td>
+                    <td>Paused/WP</td>
+                    <td>Lucy</td>
+                    <td>Laura Davila</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Cancel Reasons Pie Chart
+        new Chart(document.getElementById('cancelReasonsChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Paused/WP', 'Moved', 'Not Interested', 'Financial'],
+                datasets: [{
+                    data: [13, 9, 5, 4],
+                    backgroundColor: ['#94a3b8', '#fb923c', '#f87171', '#fbbf24'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // Sales by Type Bar Chart
+        new Chart(document.getElementById('salesByTypeChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Barrier Spray', 'Restart', 'Noseeum', 'HPD Indoor', 'Mosquito/PP', 'Perimeter', 'Fleas/Ticks', 'Misting'],
+                datasets: [{
+                    label: 'Sales',
+                    data: [2, 2, 2, 1, 1, 1, 1, 1],
+                    backgroundColor: '#22c55e',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+
+        // Daily Trend Line Chart
+        new Chart(document.getElementById('dailyTrendChart'), {
+            type: 'line',
+            data: {
+                labels: ['1/5', '1/6', '1/7', '1/8', '1/9', '1/12', '1/13', '1/15', '1/16', '1/19', '1/21', '1/22', '1/26', '1/27', '1/28'],
+                datasets: [
+                    {
+                        label: 'Sales',
+                        data: [0, 0, 0, 0, 0, 3, 2, 1, 2, 1, 0, 0, 1, 1, 1],
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Cancels',
+                        data: [2, 2, 2, 2, 2, 3, 1, 2, 1, 2, 4, 3, 2, 0, 1],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

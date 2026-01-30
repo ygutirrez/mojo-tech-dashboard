@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yoel's Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px;
+            overflow: hidden;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto 1fr 1fr;
+            gap: 25px;
+            height: calc(100vh - 80px);
+        }
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .greeting h1 {
+            font-size: 42px;
+            font-weight: 300;
+        }
+        .greeting h1 span {
+            font-weight: 700;
+            color: #7AB547;
+        }
+        .datetime {
+            text-align: right;
+        }
+        .time {
+            font-size: 64px;
+            font-weight: 700;
+            letter-spacing: -2px;
+        }
+        .date {
+            font-size: 20px;
+            color: rgba(255,255,255,0.6);
+        }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+        }
+        .card h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h2 .icon {
+            font-size: 18px;
+        }
+        .weather {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .weather-temp {
+            font-size: 72px;
+            font-weight: 700;
+        }
+        .weather-temp span {
+            font-size: 36px;
+            color: rgba(255,255,255,0.5);
+        }
+        .weather-details {
+            font-size: 18px;
+            color: rgba(255,255,255,0.7);
+        }
+        .weather-details .desc {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        .tasks-list {
+            list-style: none;
+        }
+        .tasks-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .tasks-list li:last-child {
+            border-bottom: none;
+        }
+        .tasks-list .priority-high {
+            color: #ff6b6b;
+        }
+        .tasks-list .priority-normal {
+            color: #ffd93d;
+        }
+        .tasks-list .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+        }
+        .stat-value.positive { color: #7AB547; }
+        .stat-value.negative { color: #ff6b6b; }
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+        .calendar-item {
+            padding: 15px;
+            background: rgba(122, 181, 71, 0.1);
+            border-left: 4px solid #7AB547;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .calendar-item .time-slot {
+            font-size: 14px;
+            color: #7AB547;
+            margin-bottom: 5px;
+        }
+        .calendar-item .event-name {
+            font-size: 18px;
+        }
+        .quote {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 24px;
+            font-style: italic;
+            color: rgba(255,255,255,0.6);
+            padding: 20px;
+        }
+        .quote span {
+            color: #7AB547;
+        }
+        .card.wide {
+            grid-column: span 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <div class="greeting">
+                <h1>Good morning, <span>Yoel</span></h1>
+            </div>
+            <div class="datetime">
+                <div class="time" id="clock">10:30</div>
+                <div class="date" id="date">Thursday, January 30, 2026</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">🌤️</span> Weather — Miami</h2>
+            <div class="weather">
+                <div class="weather-temp">65<span>°F</span></div>
+                <div class="weather-details">
+                    <div class="desc">Overcast</div>
+                    <div>H: 67° L: 57°</div>
+                    <div>Humidity: 73%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">📊</span> MoJo — January MTD</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Sales</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value negative">35</div>
+                    <div class="stat-label">Cancels</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value negative">-23</div>
+                    <div class="stat-label">Net</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">49%</div>
+                    <div class="stat-label">Paused</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">📅</span> Today</h2>
+            <div class="calendar-item">
+                <div class="time-slot">8:00 AM - 11:00 AM</div>
+                <div class="event-name">[10KSB] Q1 Ambassador Meeting</div>
+            </div>
+            <div class="calendar-item">
+                <div class="time-slot">All Day</div>
+                <div class="event-name">Travel — Out of Town</div>
+            </div>
+        </div>
+
+        <div class="card wide">
+            <h2><span class="icon">✅</span> Priority Tasks</h2>
+            <ul class="tasks-list">
+                <li><span class="checkbox"></span> <span class="priority-high">🔴</span> Google Ads Daily Report - Fix Sheet Access</li>
+                <li><span class="checkbox"></span> <span class="priority-high">🔴</span> Get GHL API Key for Dashboard</li>
+                <li><span class="checkbox"></span> <span class="priority-high">🔴</span> Research: Selling Clawdbot to Franchisees</li>
+                <li><span class="checkbox"></span> <span class="priority-normal">🟡</span> Digital TV Marketing — Choose Streaming Services</li>
+                <li><span class="checkbox"></span> <span class="priority-normal">🟡</span> Weekly Review</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2><span class="icon">💪</span> Body Composition</h2>
+            <div class="stats-grid" style="margin-bottom: 15px;">
+                <div class="stat-item">
+                    <div class="stat-value" id="weight">191.8</div>
+                    <div class="stat-label">Weight (lbs)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="bodyfat">20.2%</div>
+                    <div class="stat-label">Body Fat</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value positive" id="weight-change">-4.6</div>
+                    <div class="stat-label">Change (lbs)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lean-mass">153.1</div>
+                    <div class="stat-label">Lean Mass</div>
+                </div>
+            </div>
+            <div class="weight-chart-container" style="height: 120px; margin-top: 10px;">
+                <canvas id="weightChart"></canvas>
+            </div>
+            <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.4); text-align: center;">
+                Last weigh-in: <span id="last-weigh">Jan 24, 2026</span>
+            </div>
+        </div>
+
+        <div class="quote">
+            "The way to get started is to quit talking and <span>begin doing</span>." — Walt Disney
+        </div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            document.getElementById('clock').textContent = `${displayHours}:${minutes} ${ampm}`;
+            
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Update greeting based on time
+            const greeting = document.querySelector('.greeting h1');
+            if (hours < 12) {
+                greeting.innerHTML = 'Good morning, <span>Yoel</span>';
+            } else if (hours < 17) {
+                greeting.innerHTML = 'Good afternoon, <span>Yoel</span>';
+            } else {
+                greeting.innerHTML = 'Good evening, <span>Yoel</span>';
+            }
+        }
+        
+        updateClock();
+        setInterval(updateClock, 1000);
+        
+        // Weight chart data (updated by Python script)
+        const weightData = {
+            labels: ["01/13", "01/14", "01/15", "01/16", "01/18", "01/19", "01/21", "01/23", "01/24"],
+            values: [196.4, 194.0, 194.0, 194.6, 194.2, 193.1, 192.7, 191.8, 191.8]
+        };
+        
+        // Initialize weight chart
+        const ctx = document.getElementById('weightChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: weightData.labels,
+                datasets: [{
+                    data: weightData.values,
+                    borderColor: '#7AB547',
+                    backgroundColor: 'rgba(122, 181, 71, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#7AB547',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#7AB547',
+                        bodyFont: { size: 14, weight: 'bold' },
+                        padding: 10,
+                        displayColors: false,
+                        callbacks: {
+                            label: (ctx) => ctx.parsed.y + ' lbs'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { 
+                            color: 'rgba(255,255,255,0.4)',
+                            font: { size: 10 }
+                        }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { 
+                            color: 'rgba(255,255,255,0.4)',
+                            font: { size: 10 },
+                            callback: (val) => val + ' lbs'
+                        },
+                        min: Math.min(...weightData.values) - 2,
+                        max: Math.max(...weightData.values) + 2
+                    }
+                }
+            }
+        });
+        
+        // Refresh page every 5 minutes to get fresh data
+        setTimeout(() => location.reload(), 5 * 60 * 1000);
+    </script>
+</body>
+</html>
