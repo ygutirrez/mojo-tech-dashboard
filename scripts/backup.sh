@@ -60,11 +60,15 @@ rsync -av --delete --modify-window=1 \
     --exclude='.clawdhub' \
     "$WORKSPACE/" "$BACKUP_DIR/clawd/"
 
-# Backup clawdbot config (excluding media to save space)
+# Backup clawdbot config (excluding media and browser cache)
 log "Syncing clawdbot config to NAS..."
-rsync -av --delete \
+rsync -av --delete --modify-window=1 \
     --exclude='media/inbound' \
     --exclude='media/outbound' \
+    --exclude='browser' \
+    --exclude='Cache' \
+    --exclude='*.log' \
+    --exclude='sessions' \
     "$CONFIG_DIR/" "$BACKUP_DIR/clawdbot-config/"
 
 log "Backup complete!"
