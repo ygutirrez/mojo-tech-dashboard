@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="300"> <!-- Auto-refresh every 5 minutes -->
+    <title>MoJo Sales Dashboard — TV Mode</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html, body {
+            height: 100%;
+            overflow: hidden; /* Hide scrollbars for kiosk mode */
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header with Live Clock */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: #94a3b8;
+        }
+        .header-right {
+            text-align: right;
+        }
+        .live-clock {
+            font-size: 48px;
+            font-weight: 300;
+            color: #f1f5f9;
+            font-variant-numeric: tabular-nums;
+        }
+        .live-date {
+            font-size: 16px;
+            color: #64748b;
+        }
+        .refresh-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 8px;
+        }
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        /* Main Content Grid */
+        .main-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 25px;
+        }
+        
+        /* Big Numbers Row */
+        .metrics-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+        }
+        
+        .metric-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: scale(1.02);
+        }
+        .metric-card .label {
+            font-size: 14px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .metric-card .value {
+            font-size: 72px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .metric-card .subtext {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 10px;
+        }
+        .metric-card.positive .value { color: #22c55e; }
+        .metric-card.negative .value { color: #ef4444; }
+        .metric-card.warning .value { color: #f59e0b; }
+        .metric-card.neutral .value { color: #f1f5f9; }
+        
+        /* Leaderboard Card */
+        .leaderboard-card {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.05) 100%);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .leaderboard-card h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .leaderboard-item:last-child { border-bottom: none; }
+        .leaderboard-item .rank {
+            font-size: 28px;
+            width: 50px;
+        }
+        .leaderboard-item .name {
+            flex: 1;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .leaderboard-item .score {
+            font-size: 36px;
+            font-weight: 800;
+            color: #22c55e;
+        }
+        .leaderboard-item .score-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-left: 8px;
+        }
+        
+        /* Cancel Reasons Card */
+        .reasons-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .reasons-card h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .reason-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .reason-bar .label {
+            width: 140px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        .reason-bar .bar-wrap {
+            flex: 1;
+            height: 24px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+        .reason-bar .bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .reason-bar .bar-fill.paused { background: linear-gradient(90deg, #64748b, #94a3b8); }
+        .reason-bar .bar-fill.moved { background: linear-gradient(90deg, #f97316, #fb923c); }
+        .reason-bar .bar-fill.notinterested { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .reason-bar .bar-fill.financial { background: linear-gradient(90deg, #eab308, #facc15); }
+        .reason-bar .count {
+            width: 40px;
+            text-align: right;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        /* Chart Card */
+        .chart-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .chart-card h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* Insight Banner */
+        .insight-banner {
+            grid-column: 1 / -1;
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.05) 100%);
+            border-left: 4px solid #f59e0b;
+            border-radius: 0 12px 12px 0;
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .insight-banner .icon {
+            font-size: 32px;
+        }
+        .insight-banner .text {
+            font-size: 18px;
+            color: #fef3c7;
+        }
+        .insight-banner .text strong {
+            color: #fbbf24;
+        }
+        
+        /* Goal Progress */
+        .goal-section {
+            grid-column: 1 / -1;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        .goal-label {
+            font-size: 16px;
+            color: #94a3b8;
+        }
+        .goal-progress {
+            flex: 1;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .goal-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        .goal-numbers {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .goal-numbers span { color: #22c55e; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">🦟 MOSQUITO JOE</div>
+            <div class="subtitle">Miami Sales Dashboard</div>
+        </div>
+        <div class="header-right">
+            <div class="live-clock" id="clock">--:--:--</div>
+            <div class="live-date" id="date">Loading...</div>
+            <div class="refresh-indicator">
+                <div class="pulse"></div>
+                <span>Auto-refresh every 5 min</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-grid">
+        <!-- Big Numbers Row -->
+        <div class="metrics-row">
+            <div class="metric-card positive">
+                <div class="label">Sales</div>
+                <div class="value">12</div>
+                <div class="subtext">MTD January</div>
+            </div>
+            <div class="metric-card negative">
+                <div class="label">Cancels</div>
+                <div class="value">35</div>
+                <div class="subtext">MTD January</div>
+            </div>
+            <div class="metric-card negative">
+                <div class="label">Net</div>
+                <div class="value">-23</div>
+                <div class="subtext">Customer Change</div>
+            </div>
+            <div class="metric-card warning">
+                <div class="label">Adj. Net</div>
+                <div class="value">-6</div>
+                <div class="subtext">Excl. Pauses</div>
+            </div>
+            <div class="metric-card neutral">
+                <div class="label">Days Left</div>
+                <div class="value">1</div>
+                <div class="subtext">In January</div>
+            </div>
+        </div>
+        
+        <!-- Leaderboard -->
+        <div class="leaderboard-card">
+            <h3>🏆 Sales Leaderboard</h3>
+            <div class="leaderboard-item">
+                <div class="rank">🥇</div>
+                <div class="name">Lucy</div>
+                <div class="score">5</div>
+                <div class="score-label">sales</div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank">🥈</div>
+                <div class="name">Bev</div>
+                <div class="score">4</div>
+                <div class="score-label">sales</div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank">🥉</div>
+                <div class="name">Norma</div>
+                <div class="score">3</div>
+                <div class="score-label">sales</div>
+            </div>
+        </div>
+        
+        <!-- Cancel Reasons -->
+        <div class="reasons-card">
+            <h3>❌ Cancel Reasons</h3>
+            <div class="reason-bar">
+                <div class="label">Paused/WP</div>
+                <div class="bar-wrap">
+                    <div class="bar-fill paused" style="width: 49%;">49%</div>
+                </div>
+                <div class="count">17</div>
+            </div>
+            <div class="reason-bar">
+                <div class="label">Moved</div>
+                <div class="bar-wrap">
+                    <div class="bar-fill moved" style="width: 26%;">26%</div>
+                </div>
+                <div class="count">9</div>
+            </div>
+            <div class="reason-bar">
+                <div class="label">Not Interested</div>
+                <div class="bar-wrap">
+                    <div class="bar-fill notinterested" style="width: 14%;">14%</div>
+                </div>
+                <div class="count">5</div>
+            </div>
+            <div class="reason-bar">
+                <div class="label">Financial</div>
+                <div class="bar-wrap">
+                    <div class="bar-fill financial" style="width: 11%;">11%</div>
+                </div>
+                <div class="count">4</div>
+            </div>
+        </div>
+        
+        <!-- Trend Chart -->
+        <div class="chart-card">
+            <h3>📈 Daily Trend</h3>
+            <canvas id="trendChart" height="180"></canvas>
+        </div>
+        
+        <!-- Insight Banner -->
+        <div class="insight-banner">
+            <div class="icon">💡</div>
+            <div class="text">
+                <strong>49% of cancels are seasonal pauses</strong> — These customers are likely to reactivate in spring. 
+                Win-back campaign launching March 1st targeting these 17 paused accounts.
+            </div>
+        </div>
+        
+        <!-- Goal Progress -->
+        <div class="goal-section">
+            <div class="goal-label">🎯 Monthly Goal</div>
+            <div class="goal-progress">
+                <div class="goal-fill" style="width: 60%;"></div>
+            </div>
+            <div class="goal-numbers"><span>12</span> / 20 sales</div>
+        </div>
+    </div>
+
+    <script>
+        // Live Clock
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true 
+            });
+            const dateStr = now.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
+            document.getElementById('clock').textContent = timeStr;
+            document.getElementById('date').textContent = dateStr;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+        
+        // Trend Chart
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['1/6', '1/13', '1/20', '1/27', '1/30'],
+                datasets: [
+                    {
+                        label: 'Sales',
+                        data: [0, 5, 3, 3, 1],
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#22c55e'
+                    },
+                    {
+                        label: 'Cancels',
+                        data: [8, 10, 8, 6, 3],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#ef4444'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#94a3b8', font: { size: 14 } }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#64748b' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#64748b', stepSize: 5 }
+                    }
+                }
+            }
+        });
+        
+        // Prevent screen sleep (for kiosk displays)
+        if ('wakeLock' in navigator) {
+            navigator.wakeLock.request('screen').catch(() => {});
+        }
+    </script>
+</body>
+</html>
