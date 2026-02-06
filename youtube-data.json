@@ -1,0 +1,82 @@
+{
+  "lastUpdated": "2026-02-06T06:58:00Z",
+  "channel": {
+    "id": "UC1qqwBHhUSEaHIkodWp_pZg",
+    "name": "Mosquito Joe of Miami",
+    "handle": "@mosquitojoeofmiami",
+    "url": "https://www.youtube.com/@mosquitojoeofmiami",
+    "subscribers": 5730,
+    "totalViews": 7469486,
+    "videoCount": 196,
+    "avgViewsPerVideo": 3968,
+    "channelAge": "2015-05-21"
+  },
+  "topVideos": [
+    {
+      "id": "egAfM89xWOI",
+      "title": "This Mosquito Trap Is Insane… But Here's the Truth 😳🦟",
+      "views": 52149,
+      "likes": 906,
+      "comments": 23,
+      "publishedAt": "2025-08-21"
+    },
+    {
+      "id": "06PVhL35Fi0",
+      "title": "Wearing Shorts in Miami? Mosquitoes Call That a Buffet 🦟🍽️😂",
+      "views": 31006,
+      "likes": 1006,
+      "comments": 8,
+      "publishedAt": "2025-10-16"
+    },
+    {
+      "id": "NcANBelELcA",
+      "title": "Mosquito Science Is Wild… Here's What Happens When They Bite 🦟🔬",
+      "views": 31158,
+      "likes": 202,
+      "comments": 8,
+      "publishedAt": "2026-01-19"
+    },
+    {
+      "id": "LM0FxaI_Iao",
+      "title": "Tried Everything for Mosquitoes? SAME. 🦟😂",
+      "views": 11429,
+      "likes": 38,
+      "comments": 1,
+      "publishedAt": "2025-06-26"
+    },
+    {
+      "id": "x3fD_vVIL68",
+      "title": "They're not just annoying… 🦟 Mosquitoes thrive in Florida's heat",
+      "views": 4384,
+      "likes": 29,
+      "comments": 0,
+      "publishedAt": "2025-09-10"
+    }
+  ],
+  "recentVideos": [
+    {
+      "id": "AgIfUTbj7jM",
+      "title": "🚨 Standing Water = Mosquito Breeding Ground 🦟💧",
+      "views": 1883,
+      "likes": 13,
+      "comments": 3,
+      "publishedAt": "2026-02-04"
+    },
+    {
+      "id": "xXRGDrUEikM",
+      "title": "Mosquito Bites Aren't Just Itchy… Here's Why It Matters 🦟🌿",
+      "views": 1160,
+      "likes": 12,
+      "comments": 0,
+      "publishedAt": "2026-02-03"
+    },
+    {
+      "id": "mysm2RDNqXI",
+      "title": "Planted Citronella… Still Getting Bitten? 😅🦟",
+      "views": 1140,
+      "likes": 12,
+      "comments": 2,
+      "publishedAt": "2026-01-27"
+    }
+  ]
+}

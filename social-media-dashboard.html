@@ -504,11 +504,11 @@
                     <div class="followers">0</div>
                     <div class="growth neutral">New channel</div>
                 </div>
-                <div class="channel-card youtube">
+                <div class="channel-card youtube" id="yt-card">
                     <div class="icon">▶️</div>
                     <div class="name">YouTube</div>
-                    <div class="followers">15</div>
-                    <div class="growth neutral">—</div>
+                    <div class="followers" id="yt-subs">5,730</div>
+                    <div class="growth up" id="yt-views">7.5M views</div>
                 </div>
             </div>
 
@@ -517,8 +517,8 @@
             <div class="metrics-row">
                 <div class="metric-card highlight">
                     <div class="label">Total Followers</div>
-                    <div class="value positive">1,433</div>
-                    <div class="trend up">↑ 29 (+2.1%)</div>
+                    <div class="value positive">7,148</div>
+                    <div class="trend up">↑ incl. 5,730 YT subs</div>
                 </div>
                 <div class="metric-card">
                     <div class="label">Total Reach</div>
@@ -615,6 +615,49 @@
                     <span class="top-post-engagement">52 engagements</span>
                 </div>
                 <div class="top-post-content">"January promo reminder" — Promotional content with clear CTA</div>
+            </div>
+
+            <!-- YouTube Analytics Section -->
+            <div class="section-header">▶️ YouTube Analytics</div>
+            <div class="metrics-row" style="margin-bottom: 15px;">
+                <div class="metric-card">
+                    <div class="label">Subscribers</div>
+                    <div class="value" id="yt-subscribers">5,730</div>
+                    <div class="trend up">+196 videos</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Total Views</div>
+                    <div class="value" id="yt-total-views">7.5M</div>
+                    <div class="trend up">Since 2015</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Avg Views/Video</div>
+                    <div class="value" id="yt-avg-views">3,968</div>
+                    <div class="trend neutral">per video</div>
+                </div>
+            </div>
+            
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">🔥 Top Performing Videos</div>
+            <div class="top-post" id="yt-top-1">
+                <div class="top-post-header">
+                    <span class="top-post-platform">▶️ YouTube Short</span>
+                    <span class="top-post-engagement">52K views, 906 likes</span>
+                </div>
+                <div class="top-post-content">"This Mosquito Trap Is Insane… But Here's the Truth 😳🦟"</div>
+            </div>
+            <div class="top-post" id="yt-top-2">
+                <div class="top-post-header">
+                    <span class="top-post-platform">▶️ YouTube Short</span>
+                    <span class="top-post-engagement">31K views, 1K likes</span>
+                </div>
+                <div class="top-post-content">"Wearing Shorts in Miami? Mosquitoes Call That a Buffet 🦟🍽️😂"</div>
+            </div>
+            <div class="top-post" id="yt-top-3">
+                <div class="top-post-header">
+                    <span class="top-post-platform">▶️ YouTube Short</span>
+                    <span class="top-post-engagement">31K views, 202 likes</span>
+                </div>
+                <div class="top-post-content">"Mosquito Science Is Wild… Here's What Happens When They Bite 🦟🔬"</div>
             </div>
         </div>
 
