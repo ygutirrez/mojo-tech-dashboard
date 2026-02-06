@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoJo Operations Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, #ff6b35, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header .date {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card h2 {
+            font-size: 0.9rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card.span-2 { grid-column: span 2; }
+        .card.span-3 { grid-column: span 3; }
+        
+        /* Summary Stats */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        
+        .stat-box {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-box .value {
+            font-size: 2rem;
+            font-weight: bold;
+            line-height: 1;
+        }
+        
+        .stat-box .label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .green { color: #00ff88; }
+        .yellow { color: #ffaa00; }
+        .red { color: #ff4444; }
+        .blue { color: #4da6ff; }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        th {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            color: #888;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+        
+        /* Status badges */
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .badge.good { background: rgba(0,255,136,0.2); color: #00ff88; }
+        .badge.warn { background: rgba(255,170,0,0.2); color: #ffaa00; }
+        .badge.bad { background: rgba(255,68,68,0.2); color: #ff4444; }
+        .badge.info { background: rgba(77,166,255,0.2); color: #4da6ff; }
+        
+        /* Alert boxes */
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .alert.critical {
+            background: rgba(255,68,68,0.15);
+            border-left: 3px solid #ff4444;
+        }
+        
+        .alert.warning {
+            background: rgba(255,170,0,0.15);
+            border-left: 3px solid #ffaa00;
+        }
+        
+        /* Progress bars */
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        
+        .progress-fill.green { background: linear-gradient(90deg, #00ff88, #00cc66); }
+        .progress-fill.yellow { background: linear-gradient(90deg, #ffaa00, #ff8800); }
+        .progress-fill.red { background: linear-gradient(90deg, #ff6666, #ff4444); }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .grid { grid-template-columns: repeat(2, 1fr); }
+            .card.span-3 { grid-column: span 2; }
+        }
+        
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+            .card.span-2, .card.span-3 { grid-column: span 1; }
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🦟 MoJo Operations Dashboard</h1>
+        <div class="date" id="currentDate"></div>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="card span-3" style="margin-bottom: 15px;">
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="value green">16</div>
+                <div class="label">Vehicles Active</div>
+            </div>
+            <div class="stat-box">
+                <div class="value blue">10</div>
+                <div class="label">Blowers Assigned</div>
+            </div>
+            <div class="stat-box">
+                <div class="value green">58</div>
+                <div class="label">Avg Safety Score</div>
+            </div>
+            <div class="stat-box">
+                <div class="value yellow">9</div>
+                <div class="label">Vehicles w/ Codes</div>
+            </div>
+            <div class="stat-box">
+                <div class="value red">2</div>
+                <div class="label">Drivers Need Coaching</div>
+            </div>
+            <div class="stat-box">
+                <div class="value green">2,840</div>
+                <div class="label">Miles This Week</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- ALERTS SECTION -->
+        <div class="card span-3">
+            <h2>🚨 Action Required</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px;">
+                <div class="alert critical">
+                    <strong>🔧 Truck 3</strong> - 13 trouble codes<br>
+                    <span style="color: #ccc;">P0301 Misfire, P0520 Oil Pressure - Schedule mechanic visit</span>
+                </div>
+                <div class="alert critical">
+                    <strong>🔧 Truck 4</strong> - 11 trouble codes<br>
+                    <span style="color: #ccc;">P0522 Low Oil Pressure ⚠️ - Check oil level TODAY</span>
+                </div>
+                <div class="alert critical">
+                    <strong>👤 John Sabin</strong> - Safety Score: 0<br>
+                    <span style="color: #ccc;">41 rapid accelerations in 7 days - Coaching required</span>
+                </div>
+                <div class="alert warning">
+                    <strong>👤 Marcus Rubi</strong> - Safety Score: 18<br>
+                    <span style="color: #ccc;">4.3 hard brakes per 100mi (highest in fleet)</span>
+                </div>
+                <div class="alert warning">
+                    <strong>🔧 Truck 7</strong> - 7 trouble codes<br>
+                    <span style="color: #ccc;">P1299 Overheating detected - Check coolant</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TECH PERFORMANCE -->
+        <div class="card span-2">
+            <h2>👷 Tech Performance (7 Days)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tech</th>
+                        <th>Truck</th>
+                        <th>Safety</th>
+                        <th>Miles</th>
+                        <th>Hard Brakes</th>
+                        <th>Rapid Accel</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Luis Zamora</strong></td>
+                        <td>Best Pest 2</td>
+                        <td class="green">91</td>
+                        <td>621</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><span class="badge good">Excellent</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>David Carbajal</strong></td>
+                        <td>Truck 16</td>
+                        <td class="green">83</td>
+                        <td>222</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td><span class="badge good">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Damian Machin</strong></td>
+                        <td>Truck 9</td>
+                        <td class="green">82</td>
+                        <td>59</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td><span class="badge good">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Andrew Schamel</strong></td>
+                        <td>Truck 17</td>
+                        <td class="green">80</td>
+                        <td>228</td>
+                        <td>4</td>
+                        <td>0</td>
+                        <td><span class="badge good">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Jorge Navarro</strong></td>
+                        <td>Truck 14</td>
+                        <td class="yellow">79</td>
+                        <td>172</td>
+                        <td>2</td>
+                        <td>0</td>
+                        <td><span class="badge info">OK</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Travis Johnson</strong></td>
+                        <td>Truck 15</td>
+                        <td class="yellow">67</td>
+                        <td>93</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td><span class="badge warn">Monitor</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stanley Prophete</strong></td>
+                        <td>Truck 10</td>
+                        <td class="yellow">63</td>
+                        <td>295</td>
+                        <td>2</td>
+                        <td>0</td>
+                        <td><span class="badge warn">Monitor</span></td>
+                    </tr>
+                    <tr style="background: rgba(255,68,68,0.1);">
+                        <td><strong>Marcus Rubi</strong></td>
+                        <td>Truck 13</td>
+                        <td class="red">18</td>
+                        <td>162</td>
+                        <td>7</td>
+                        <td>1</td>
+                        <td><span class="badge bad">Coach</span></td>
+                    </tr>
+                    <tr style="background: rgba(255,68,68,0.1);">
+                        <td><strong>John Sabin</strong></td>
+                        <td>Truck 12</td>
+                        <td class="red">0</td>
+                        <td>324</td>
+                        <td>6</td>
+                        <td>41</td>
+                        <td><span class="badge bad">Urgent</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- EQUIPMENT / BLOWERS -->
+        <div class="card">
+            <h2>🔧 Equipment Status</h2>
+            <div class="stats-row" style="margin-bottom: 15px;">
+                <div class="stat-box">
+                    <div class="value blue">10</div>
+                    <div class="label">Blowers Active</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value yellow">1</div>
+                    <div class="label">Issues Reported</div>
+                </div>
+            </div>
+            
+            <h3 style="font-size: 0.8rem; color: #888; margin: 12px 0 8px;">Blower Assignments</h3>
+            <table style="font-size: 0.8rem;">
+                <thead>
+                    <tr>
+                        <th>Tech</th>
+                        <th>Model</th>
+                        <th>Last Scan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Travis J.</td>
+                        <td>Solo 451</td>
+                        <td>1/6</td>
+                    </tr>
+                    <tr style="background: rgba(255,170,0,0.1);">
+                        <td>John</td>
+                        <td>Solo 451</td>
+                        <td>2/5 ⚠️</td>
+                    </tr>
+                    <tr>
+                        <td>Andrew</td>
+                        <td>Solo 451 / SR200</td>
+                        <td>2/5</td>
+                    </tr>
+                    <tr>
+                        <td>Marcus R.</td>
+                        <td>SR200 (x2)</td>
+                        <td>2/5</td>
+                    </tr>
+                    <tr>
+                        <td>Jeo</td>
+                        <td>SR200 / Solo</td>
+                        <td>1/14</td>
+                    </tr>
+                    <tr>
+                        <td>Stanley</td>
+                        <td>SR200</td>
+                        <td>2/5</td>
+                    </tr>
+                    <tr>
+                        <td>Damian</td>
+                        <td>Solo 451</td>
+                        <td>1/22</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="alert warning" style="margin-top: 12px;">
+                ⚠️ John's blower serial# missing
+            </div>
+        </div>
+
+        <!-- FLEET STATUS -->
+        <div class="card span-2">
+            <h2>🚛 Fleet Status</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Vehicle</th>
+                        <th>Driver</th>
+                        <th>Fuel</th>
+                        <th>Battery</th>
+                        <th>Odometer</th>
+                        <th>Codes</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: rgba(255,68,68,0.1);">
+                        <td><strong>Truck 3</strong></td>
+                        <td>—</td>
+                        <td>85%</td>
+                        <td class="yellow">12.6v</td>
+                        <td>29,904</td>
+                        <td class="red">13</td>
+                        <td><span class="badge bad">Service</span></td>
+                    </tr>
+                    <tr style="background: rgba(255,68,68,0.1);">
+                        <td><strong>Truck 4</strong></td>
+                        <td>—</td>
+                        <td>100%</td>
+                        <td class="yellow">12.2v</td>
+                        <td>35,428</td>
+                        <td class="red">11</td>
+                        <td><span class="badge bad">Service</span></td>
+                    </tr>
+                    <tr style="background: rgba(255,170,0,0.1);">
+                        <td><strong>Truck 7</strong></td>
+                        <td>—</td>
+                        <td>77%</td>
+                        <td class="yellow">12.0v</td>
+                        <td>20,396</td>
+                        <td class="yellow">7</td>
+                        <td><span class="badge warn">Monitor</span></td>
+                    </tr>
+                    <tr>
+                        <td>Truck 5</td>
+                        <td>—</td>
+                        <td>84%</td>
+                        <td class="green">12.5v</td>
+                        <td>45,491</td>
+                        <td>1</td>
+                        <td><span class="badge info">OK</span></td>
+                    </tr>
+                    <tr>
+                        <td>Truck 9</td>
+                        <td>Damian M.</td>
+                        <td>42%</td>
+                        <td class="green">12.6v</td>
+                        <td>24,501</td>
+                        <td>1</td>
+                        <td><span class="badge good">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td>Truck 10</td>
+                        <td>Stanley P.</td>
+                        <td>91%</td>
+                        <td class="green">12.5v</td>
+                        <td>45,679</td>
+                        <td>2</td>
+                        <td><span class="badge info">OK</span></td>
+                    </tr>
+                    <tr>
+                        <td>Truck 12</td>
+                        <td>John S.</td>
+                        <td>31%</td>
+                        <td class="green">12.5v</td>
+                        <td>37,960</td>
+                        <td class="green">0</td>
+                        <td><span class="badge good">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td>Truck 13</td>
+                        <td>Marcus R.</td>
+                        <td>41%</td>
+                        <td class="yellow">12.0v</td>
+                        <td>21,244</td>
+                        <td class="green">0</td>
+                        <td><span class="badge good">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td>Truck 14</td>
+                        <td>Jorge N.</td>
+                        <td>—</td>
+                        <td class="green">12.5v</td>
+                        <td>3,334</td>
+                        <td class="green">0</td>
+                        <td><span class="badge good">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td>Truck 15</td>
+                        <td>Travis J.</td>
+                        <td>49%</td>
+                        <td class="green">12.6v</td>
+                        <td>6,489</td>
+                        <td class="green">0</td>
+                        <td><span class="badge good">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td>Truck 16</td>
+                        <td>David C.</td>
+                        <td>53%</td>
+                        <td class="green">12.8v</td>
+                        <td>221</td>
+                        <td class="green">0</td>
+                        <td><span class="badge good">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td>Truck 17</td>
+                        <td>Andrew S.</td>
+                        <td>65%</td>
+                        <td class="green">12.6v</td>
+                        <td>268</td>
+                        <td class="green">0</td>
+                        <td><span class="badge good">Good</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- MAINTENANCE CODES -->
+        <div class="card">
+            <h2>🔧 Top Trouble Codes</h2>
+            <div style="font-size: 0.85rem;">
+                <div style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <span class="red">🔴 P0520/P0522</span><br>
+                    <span style="color: #888;">Oil Pressure - 3 vehicles</span><br>
+                    <em style="color: #4da6ff; font-size: 0.8rem;">Check oil level, sensor, pump</em>
+                </div>
+                <div style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <span class="red">🔴 P0481</span><br>
+                    <span style="color: #888;">Fan Control - 2 vehicles</span><br>
+                    <em style="color: #4da6ff; font-size: 0.8rem;">Check cooling fan relay/wiring</em>
+                </div>
+                <div style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <span class="yellow">🟡 P0456</span><br>
+                    <span style="color: #888;">EVAP Leak - 4 vehicles</span><br>
+                    <em style="color: #4da6ff; font-size: 0.8rem;">Check gas cap seal</em>
+                </div>
+                <div style="padding: 8px 0;">
+                    <span class="yellow">🟡 P0138/P0141</span><br>
+                    <span style="color: #888;">O2 Sensor - 3 vehicles</span><br>
+                    <em style="color: #4da6ff; font-size: 0.8rem;">Replace O2 sensor</em>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Last updated: <span id="lastUpdate"></span> • Fleet data from Zubie • Equipment from RFID Tracker • Mosquito Joe of Miami 🦟
+    </div>
+
+    <script>
+        // Set current date
+        const now = new Date();
+        document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        document.getElementById('lastUpdate').textContent = now.toLocaleString();
+    </script>
+</body>
+</html>
