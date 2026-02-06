@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-02-06T13:25:34.604Z",
+  "updated_at": "2026-02-06T13:32:20.782Z",
   "period": {
-    "from": "2026-01-30T13:25:08.023Z",
-    "to": "2026-02-06T13:25:08.022Z"
+    "from": "2026-01-30T13:32:03.155Z",
+    "to": "2026-02-06T13:32:03.154Z"
   },
   "summary": {
     "total_vehicles": 16,
     "total_miles": 2754,
-    "avg_safety_score": 63,
+    "avg_safety_score": 94,
     "vehicles_with_codes": 9,
     "blowers_active": 10,
-    "drivers_need_coaching": 3
+    "drivers_need_coaching": 0
   },
   "alerts": [
     {
@@ -30,38 +30,9 @@
       "severity": "critical",
       "title": "Truck 7 - 7 codes",
       "detail": "Evaporative Emission System Leak Detected (small leak)"
-    },
-    {
-      "type": "driver",
-      "severity": "warning",
-      "title": "Truck 5 - Score: 46",
-      "detail": "4 hard brakes, 2 rapid accels"
-    },
-    {
-      "type": "driver",
-      "severity": "critical",
-      "title": "John Sabin - Score: 0",
-      "detail": "6 hard brakes, 41 rapid accels"
-    },
-    {
-      "type": "driver",
-      "severity": "warning",
-      "title": "Marcus Rubi - Score: 18",
-      "detail": "7 hard brakes, 1 rapid accels"
     }
   ],
   "tech_performance": [
-    {
-      "nickname": "Best Pest 2",
-      "driver": "Luis Zamora",
-      "trip_count": 93,
-      "total_miles": 621,
-      "hard_brakes": 0,
-      "rapid_accels": 0,
-      "speeding_events": 1148,
-      "safety_score": 91,
-      "status": "good"
-    },
     {
       "nickname": "Truck 9",
       "driver": "Damian Machin",
@@ -70,7 +41,51 @@
       "hard_brakes": 0,
       "rapid_accels": 1,
       "speeding_events": 111,
-      "safety_score": 84,
+      "safety_score": 100,
+      "status": "good"
+    },
+    {
+      "nickname": "Truck 3",
+      "driver": null,
+      "trip_count": 26,
+      "total_miles": 18,
+      "hard_brakes": 0,
+      "rapid_accels": 1,
+      "speeding_events": 7,
+      "safety_score": 100,
+      "status": "good"
+    },
+    {
+      "nickname": "Best Pest 2",
+      "driver": "Luis Zamora",
+      "trip_count": 93,
+      "total_miles": 621,
+      "hard_brakes": 0,
+      "rapid_accels": 0,
+      "speeding_events": 1148,
+      "safety_score": 100,
+      "status": "good"
+    },
+    {
+      "nickname": "Truck 7",
+      "driver": null,
+      "trip_count": 47,
+      "total_miles": 394,
+      "hard_brakes": 1,
+      "rapid_accels": 0,
+      "speeding_events": 1344,
+      "safety_score": 98,
+      "status": "good"
+    },
+    {
+      "nickname": "Truck 15",
+      "driver": "Travis Johnson",
+      "trip_count": 15,
+      "total_miles": 93,
+      "hard_brakes": 1,
+      "rapid_accels": 1,
+      "speeding_events": 317,
+      "safety_score": 98,
       "status": "good"
     },
     {
@@ -81,29 +96,18 @@
       "hard_brakes": 1,
       "rapid_accels": 0,
       "speeding_events": 552,
-      "safety_score": 81,
+      "safety_score": 98,
       "status": "good"
     },
     {
-      "nickname": "Truck 7",
-      "driver": null,
-      "trip_count": 46,
-      "total_miles": 394,
-      "hard_brakes": 1,
+      "nickname": "Truck 10",
+      "driver": "Stanley Prophete",
+      "trip_count": 98,
+      "total_miles": 272,
+      "hard_brakes": 2,
       "rapid_accels": 0,
-      "speeding_events": 1344,
-      "safety_score": 80,
-      "status": "good"
-    },
-    {
-      "nickname": "Truck 17",
-      "driver": "Andrew Schamel",
-      "trip_count": 82,
-      "total_miles": 228,
-      "hard_brakes": 4,
-      "rapid_accels": 0,
-      "speeding_events": 113,
-      "safety_score": 80,
+      "speeding_events": 1712,
+      "safety_score": 96,
       "status": "good"
     },
     {
@@ -114,41 +118,19 @@
       "hard_brakes": 2,
       "rapid_accels": 0,
       "speeding_events": 336,
-      "safety_score": 78,
-      "status": "monitor"
+      "safety_score": 96,
+      "status": "good"
     },
     {
-      "nickname": "Truck 3",
-      "driver": null,
-      "trip_count": 26,
-      "total_miles": 18,
-      "hard_brakes": 0,
-      "rapid_accels": 1,
-      "speeding_events": 7,
-      "safety_score": 71,
-      "status": "monitor"
-    },
-    {
-      "nickname": "Truck 15",
-      "driver": "Travis Johnson",
-      "trip_count": 15,
-      "total_miles": 93,
-      "hard_brakes": 1,
-      "rapid_accels": 1,
-      "speeding_events": 317,
-      "safety_score": 67,
-      "status": "monitor"
-    },
-    {
-      "nickname": "Truck 10",
-      "driver": "Stanley Prophete",
-      "trip_count": 98,
-      "total_miles": 272,
-      "hard_brakes": 2,
+      "nickname": "Truck 17",
+      "driver": "Andrew Schamel",
+      "trip_count": 82,
+      "total_miles": 228,
+      "hard_brakes": 4,
       "rapid_accels": 0,
-      "speeding_events": 1712,
-      "safety_score": 61,
-      "status": "monitor"
+      "speeding_events": 113,
+      "safety_score": 92,
+      "status": "good"
     },
     {
       "nickname": "Truck 5",
@@ -158,8 +140,8 @@
       "hard_brakes": 4,
       "rapid_accels": 2,
       "speeding_events": 1434,
-      "safety_score": 46,
-      "status": "coach"
+      "safety_score": 91,
+      "status": "good"
     },
     {
       "nickname": "Truck 13",
@@ -169,8 +151,8 @@
       "hard_brakes": 7,
       "rapid_accels": 1,
       "speeding_events": 1158,
-      "safety_score": 18,
-      "status": "coach"
+      "safety_score": 86,
+      "status": "good"
     },
     {
       "nickname": "Truck 12",
@@ -180,8 +162,8 @@
       "hard_brakes": 6,
       "rapid_accels": 41,
       "speeding_events": 2522,
-      "safety_score": 0,
-      "status": "coach"
+      "safety_score": 68,
+      "status": "monitor"
     }
   ],
   "vehicles": [
@@ -429,7 +411,7 @@
       "nickname": "Truck 12",
       "driver": "John S.",
       "make_model": "2022 Ford Maverick",
-      "fuel_level": 91,
+      "fuel_level": 96,
       "battery_volts": "12.7",
       "odometer": 37961,
       "trouble_code_count": 0,
@@ -451,7 +433,7 @@
       "nickname": "Truck 13",
       "driver": "Marcus R.",
       "make_model": "2024 Ford Maverick",
-      "fuel_level": 36,
+      "fuel_level": 38,
       "battery_volts": "12.1",
       "odometer": 21244,
       "trouble_code_count": 0,
@@ -484,7 +466,7 @@
       "nickname": "Truck 17",
       "driver": "Andrew S.",
       "make_model": "2026 Ford Maverick",
-      "fuel_level": 93,
+      "fuel_level": 94,
       "battery_volts": "12.6",
       "odometer": 269,
       "trouble_code_count": 0,
@@ -495,7 +477,7 @@
       "nickname": "Truck 16",
       "driver": "David C.",
       "make_model": "2026 Ford Maverick",
-      "fuel_level": 52,
+      "fuel_level": 49,
       "battery_volts": "12.8",
       "odometer": 221,
       "trouble_code_count": 0,
