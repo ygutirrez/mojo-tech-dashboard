@@ -794,26 +794,91 @@
                 </div>
             </div>
 
-            <!-- Placeholder for future ops metrics -->
-            <div class="section-header">Route & Equipment</div>
+            <!-- Fleet Operations - Zubie Integration -->
+            <div class="section-header">🚛 Fleet Operations <span class="new-badge">LIVE</span></div>
+            
+            <!-- Fleet Summary -->
             <div class="metrics-row compact">
-                <div class="metric-card placeholder">
-                    <div class="label">Route Efficiency</div>
-                    <div class="value small placeholder-text">—</div>
-                    <div class="subtext">Drive vs Service time</div>
-                    <div class="awaiting">📊 Awaiting ServiceMinder</div>
+                <div class="metric-card">
+                    <div class="label">Total Miles (7d)</div>
+                    <div class="value small" style="color: #00ff88;">2,840</div>
+                    <div class="subtext">16 vehicles active</div>
                 </div>
-                <div class="metric-card placeholder">
-                    <div class="label">Equipment Uptime</div>
-                    <div class="value small placeholder-text">—</div>
-                    <div class="subtext">Target: &gt;95%</div>
-                    <div class="awaiting">📊 Awaiting ServiceMinder</div>
+                <div class="metric-card">
+                    <div class="label">Avg Safety Score</div>
+                    <div class="value small" style="color: #ffaa00;">58</div>
+                    <div class="subtext">Target: 80+</div>
+                </div>
+            </div>
+
+            <!-- Vehicles Needing Attention -->
+            <div class="section-header" style="margin-top: 15px;">⚠️ Vehicle Maintenance Alerts</div>
+            <div style="background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); border-radius: 8px; padding: 12px; margin-bottom: 8px; font-size: 0.85rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <strong style="color: #ff6666;">Truck 3</strong>
+                    <span style="color: #888;">13 codes | 2016 Ram ProMaster</span>
+                </div>
+                <div style="color: #ccc;">
+                    🔴 P0301 Cylinder Misfire → <em>Check spark plug/coil</em><br>
+                    🔴 P0520 Oil Pressure → <em>Check oil level/sensor</em>
+                </div>
+            </div>
+            <div style="background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); border-radius: 8px; padding: 12px; margin-bottom: 8px; font-size: 0.85rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <strong style="color: #ff6666;">Truck 4</strong>
+                    <span style="color: #888;">11 codes | 2016 Ram ProMaster</span>
+                </div>
+                <div style="color: #ccc;">
+                    🔴 P0522 Low Oil Pressure → <em>⚠️ Check immediately</em><br>
+                    🟡 P0481 Fan Circuit → <em>Check relay/wiring</em>
+                </div>
+            </div>
+            <div style="background: rgba(255,170,0,0.1); border: 1px solid rgba(255,170,0,0.3); border-radius: 8px; padding: 12px; margin-bottom: 8px; font-size: 0.85rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <strong style="color: #ffaa00;">Truck 7</strong>
+                    <span style="color: #888;">7 codes | 2015 Ford Transit</span>
+                </div>
+                <div style="color: #ccc;">
+                    🟡 P1299 Overheating → <em>Check coolant/thermostat</em>
+                </div>
+            </div>
+
+            <!-- Driver Safety Alerts -->
+            <div class="section-header" style="margin-top: 15px;">🚨 Driver Coaching Needed</div>
+            <div style="background: rgba(255,68,68,0.1); border-radius: 8px; padding: 10px; margin-bottom: 6px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="color: #ff6666;">John Sabin</strong> (Truck 12)<br>
+                    <span style="color: #888;">Score: 0 | 41 rapid accels | 324 mi</span>
+                </div>
+                <span style="background: #ff4444; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem;">URGENT</span>
+            </div>
+            <div style="background: rgba(255,170,0,0.1); border-radius: 8px; padding: 10px; margin-bottom: 6px; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="color: #ffaa00;">Marcus Rubi</strong> (Truck 13)<br>
+                    <span style="color: #888;">Score: 18 | 4.3 hard brakes/100mi</span>
+                </div>
+                <span style="background: #ffaa00; color: #000; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem;">REVIEW</span>
+            </div>
+
+            <!-- Top Performers -->
+            <div class="section-header" style="margin-top: 15px;">🏆 Top Drivers</div>
+            <div style="font-size: 0.85rem;">
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <span>🥇 Luis Zamora (BP2)</span>
+                    <span style="color: #00ff88;">91 pts</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <span>🥈 David Carbajal (T16)</span>
+                    <span style="color: #00ff88;">83 pts</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                    <span>🥉 Damian Machin (T9)</span>
+                    <span style="color: #00ff88;">82 pts</span>
                 </div>
             </div>
 
             <div class="alert-box info" style="margin-top: 15px;">
-                ℹ️ <strong>Operations Dashboard:</strong> Full technician productivity and routing metrics will be available after ServiceMinder integration. Current estimates based on industry benchmarks.
-            </div>
+                📡 <strong>Fleet Data:</strong> Live from Zubie. Updates weekly on Mondays.</div>
 
             <!-- Quick Reference: Targets -->
             <div class="section-header">Target Benchmarks</div>
